@@ -1,0 +1,49 @@
+
+server:
+  port: 8084
+
+spring:
+  application:
+    name: live-class-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/live_class_db}
+    username: ${DB_USERNAME:olympiad_user}
+    password: ${DB_PASSWORD:olympiad_password_2026}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:VGhpc0lzQVRlc3RTZWNyZXRLZXlGb3JPbHltcGlhZDEyMzQ1Ng==}
+
+livekit:
+  url: ${LIVEKIT_URL:ws://localhost:7880}
+  ws-url: ${LIVEKIT_WS_URL:ws://localhost:7880}
+  api-key: ${LIVEKIT_API_KEY:devkey}
+  api-secret: ${LIVEKIT_API_SECRET:secretkeysecretkeysecretkey12}
+  token-ttl-millis: 1800000
+
+identity-service:
+  base-url: http://localhost:8080
+
+student-service:
+  base-url: http://localhost:8082

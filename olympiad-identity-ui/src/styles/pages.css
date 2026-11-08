@@ -1,0 +1,85 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.page--centered {
+  min-height: 60vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.page__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.page__title {
+  font-size: 1.7rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 820px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card--message {
+  max-width: 520px;
+  text-align: center;
+  align-items: center;
+  padding: var(--space-7) var(--space-5);
+}
+
+.card--message .card__actions {
+  justify-content: center;
+}
+
+/* Access probes */
+.probe-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.probe {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--color-surface-muted);
+}
+
+.probe__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.probe__result {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}

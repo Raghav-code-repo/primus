@@ -1,0 +1,1069 @@
+/* ==========================================================================
+   EduLearn Modern Dashboard & Navigation System
+   ========================================================================== */
+
+/* Overall Shell */
+.edulearn-app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-bg);
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   Adjustable Sidebar
+   -------------------------------------------------------------------------- */
+.edulearn-sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 40;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.edulearn-sidebar--collapsed {
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+}
+
+.edulearn-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 64px;
+}
+
+.edulearn-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--color-heading);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.edulearn-sidebar__brand-name {
+  white-space: nowrap;
+}
+
+.edulearn-sidebar__toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.edulearn-sidebar__toggle-btn:hover {
+  background-color: var(--color-surface-muted);
+  color: var(--color-heading);
+}
+
+.edulearn-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) var(--space-3);
+  flex: 1 0 auto;
+}
+
+.edulearn-sidebar__section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding: var(--space-3) var(--space-3) var(--space-1);
+  white-space: nowrap;
+}
+
+.edulearn-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.94rem;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.edulearn-sidebar__link:hover {
+  background-color: var(--color-primary-soft);
+  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: var(--color-heading);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.edulearn-sidebar__link:focus-visible {
+  outline: 3px solid var(--color-header-focus);
+  outline-offset: 2px;
+  background-color: var(--color-primary-soft);
+  color: var(--color-heading);
+}
+
+.edulearn-sidebar__link.active {
+  background-color: var(--color-primary-soft);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  color: var(--color-primary-strong);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.edulearn-sidebar__link-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-sidebar__link-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar Bottom Card Widget */
+.edulearn-sidebar__card {
+  margin: var(--space-4) var(--space-3);
+  padding: var(--space-4);
+  background: linear-gradient(145deg, #e0f2fe 0%, #e0e7ff 100%);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme='dark'] .edulearn-sidebar__card {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+}
+
+.edulearn-sidebar__card-title {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #0369a1;
+}
+
+:root[data-theme='dark'] .edulearn-sidebar__card-title {
+  color: #38bdf8;
+}
+
+/* Mobile Sidebar & Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 35;
+}
+
+@media (max-width: 900px) {
+  .edulearn-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -280px;
+    box-shadow: var(--shadow-lg);
+    transition: left 0.25s ease;
+  }
+
+  .edulearn-sidebar--mobile-open {
+    left: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Area & Topbar
+   -------------------------------------------------------------------------- */
+.edulearn-main-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.edulearn-topbar {
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-header-border);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-5);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+}
+
+.edulearn-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  max-width: 500px;
+}
+
+.edulearn-topbar__toggle-btn {
+  background: color-mix(in srgb, #ffffff 8%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 24%, transparent);
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.edulearn-topbar__toggle-btn:hover {
+  background-color: var(--color-header-hover);
+  border-color: var(--color-header-hover-border);
+}
+
+.edulearn-topbar__toggle-btn:focus-visible,
+.edulearn-topbar__icon-btn:focus-visible,
+.edulearn-topbar__user-pill:focus-visible,
+.edulearn-topbar__search-input:focus-visible,
+.edulearn-topbar__logout-direct:focus-visible,
+.edulearn-sidebar__toggle-btn:focus-visible {
+  outline: 3px solid var(--color-header-focus);
+  outline-offset: 2px;
+}
+
+.edulearn-topbar__search {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+}
+
+.edulearn-topbar__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-header-muted);
+  pointer-events: none;
+}
+
+.edulearn-topbar__search-input {
+  width: 100%;
+  padding: 8px 14px 8px 38px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, #ffffff 22%, transparent);
+  background-color: color-mix(in srgb, #ffffff 10%, transparent);
+  color: #ffffff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.edulearn-topbar__search-input::placeholder {
+  color: var(--color-header-muted);
+  opacity: 1;
+}
+
+.edulearn-topbar__search-input:hover {
+  background-color: color-mix(in srgb, #ffffff 14%, transparent);
+  border-color: color-mix(in srgb, #ffffff 32%, transparent);
+}
+
+.edulearn-topbar__search-input:focus {
+  border-color: var(--color-header-active-border);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-header-active) 35%, transparent);
+}
+
+.edulearn-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.edulearn-topbar__icon-btn,
+.edulearn-topbar .theme-toggle {
+  position: relative;
+  background: color-mix(in srgb, #ffffff 8%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 24%, transparent);
+  color: #ffffff;
+  cursor: pointer;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.edulearn-topbar__icon-btn:hover,
+.edulearn-topbar .theme-toggle:hover {
+  background-color: var(--color-header-hover);
+  border-color: var(--color-header-hover-border);
+  color: #ffffff;
+}
+
+.edulearn-topbar__badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-topbar__user-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-2);
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--color-header-border);
+}
+
+.edulearn-topbar__user-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: color-mix(in srgb, #ffffff 6%, transparent);
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  color: #ffffff;
+}
+
+.edulearn-topbar__user-pill:hover {
+  background-color: var(--color-header-hover);
+  border-color: var(--color-header-hover-border);
+}
+
+.edulearn-topbar__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-topbar__user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.edulearn-topbar__user-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #ffffff;
+}
+
+.edulearn-topbar__user-role {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.edulearn-topbar__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  padding: var(--space-3);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.edulearn-topbar__dropdown-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.edulearn-topbar__dropdown-email {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.edulearn-topbar__dropdown .button--danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.edulearn-topbar__dropdown-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 4px 0;
+}
+
+.edulearn-topbar__logout-direct {
+  margin-left: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.edulearn-topbar__logout-direct.button--ghost {
+  color: #ffffff;
+  border-color: color-mix(in srgb, #ffffff 24%, transparent);
+  background-color: color-mix(in srgb, #ffffff 8%, transparent);
+}
+
+.edulearn-topbar__logout-direct.button--ghost:hover:not(:disabled) {
+  color: #ffffff;
+  background-color: color-mix(in srgb, #ef4444 28%, transparent);
+  border-color: color-mix(in srgb, #fca5a5 45%, transparent);
+}
+
+/* Main Dashboard Body Container */
+.edulearn-body {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* --------------------------------------------------------------------------
+   Hero Banner (Celebratory Scholars & Key Metrics)
+   -------------------------------------------------------------------------- */
+.edulearn-hero {
+  position: relative;
+  background: linear-gradient(135deg, #0d9488 0%, #059669 45%, #047857 100%);
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  padding: var(--space-6) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.22);
+}
+
+.edulearn-hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.edulearn-hero__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a7f3d0;
+}
+
+.edulearn-hero__title {
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0;
+  color: #ffffff;
+}
+
+.edulearn-hero__subtitle {
+  font-size: 1.02rem;
+  opacity: 0.92;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.edulearn-hero__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.edulearn-hero__stat-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.edulearn-hero__stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-hero__stat-icon--pink {
+  background-color: #ec4899;
+  color: #ffffff;
+}
+
+.edulearn-hero__stat-icon--amber {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.edulearn-hero__stat-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.edulearn-hero__stat-label {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.edulearn-hero__stat-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.edulearn-hero__artwork {
+  position: relative;
+  z-index: 1;
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-hero__svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+@media (max-width: 860px) {
+  .edulearn-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .edulearn-hero__artwork {
+    width: 100%;
+    max-width: 320px;
+    margin-top: var(--space-3);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Quick Action Card (Top Right in EduLearn Dashboard)
+   -------------------------------------------------------------------------- */
+.edulearn-quick-action {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.edulearn-quick-action__prompt {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-heading);
+  margin: 0;
+  text-align: center;
+}
+
+.edulearn-quick-action__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background-color: #0284c7;
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+}
+
+.edulearn-quick-action__btn:hover {
+  background-color: #0369a1;
+  transform: translateY(-1px);
+}
+
+.edulearn-quick-action__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.edulearn-quick-action__box {
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.edulearn-quick-action__box-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0284c7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.edulearn-quick-action__box-val {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--color-heading);
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Top Dashboard Row (Hero + Quick Action)
+   -------------------------------------------------------------------------- */
+.edulearn-top-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 1080px) {
+  .edulearn-top-row {
+    grid-template-columns: 1.8fr 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Middle Dashboard Row (Courses, Activity, Instructors)
+   -------------------------------------------------------------------------- */
+.edulearn-mid-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 780px) {
+  .edulearn-mid-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .edulearn-mid-row {
+    grid-template-columns: 1.05fr 1.15fr 0.95fr;
+  }
+}
+
+/* Generic EduLearn Card */
+.edulearn-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.edulearn-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.edulearn-card__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-heading);
+  margin: 0;
+}
+
+.edulearn-card__subtitle {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.edulearn-card__link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.edulearn-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Course List inside card */
+.edulearn-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.edulearn-course-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px 0;
+}
+
+.edulearn-course-row__badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  font-weight: 900;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.edulearn-course-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.edulearn-course-row__title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edulearn-course-row__meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.edulearn-course-row__btn {
+  background-color: #fef9c3;
+  color: #854d0e;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+:root[data-theme='dark'] .edulearn-course-row__btn {
+  background-color: #713f12;
+  color: #fef08a;
+}
+
+.edulearn-course-row__more {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Activity Panel & Tiles */
+.edulearn-activity-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.edulearn-calendar-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-surface-muted);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edulearn-chart-wrapper {
+  width: 100%;
+}
+
+.edulearn-progress-svg,
+.edulearn-bars-svg,
+.edulearn-sparkline-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.edulearn-activity-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.edulearn-tile {
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.edulearn-tile--yellow {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.edulearn-tile--pink {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+}
+
+.edulearn-tile__value {
+  font-size: 1.55rem;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1;
+}
+
+.edulearn-tile__title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.edulearn-tile__subtitle {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.edulearn-tile__btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Instructors List */
+.edulearn-instructor-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.edulearn-instructor-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.edulearn-instructor-row__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.edulearn-instructor-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.edulearn-instructor-row__name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--color-heading);
+  margin: 0;
+}
+
+.edulearn-instructor-row__count {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.edulearn-instructor-row__btn {
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.edulearn-instructor-row__btn:hover {
+  background-color: var(--color-border);
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Dashboard Row (Analytics, Donut, Sparkline)
+   -------------------------------------------------------------------------- */
+.edulearn-analytics-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 780px) {
+  .edulearn-analytics-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .edulearn-analytics-row {
+    grid-template-columns: 1.35fr 1fr 1fr;
+  }
+}
+
+.edulearn-bar-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.edulearn-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.edulearn-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+/* Donut Chart */
+.edulearn-donut-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-2) auto;
+}
+
+.edulearn-donut-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.edulearn-donut-num {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--color-heading);
+}
+
+.edulearn-donut-text {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.edulearn-donut-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.edulearn-growth-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0284c7;
+}
+

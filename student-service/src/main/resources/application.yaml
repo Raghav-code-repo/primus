@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: student-service
+
+  datasource:
+    url: ${STUDENT_DATABASE_URL:jdbc:postgresql://localhost:5432/student_db}
+    username: ${STUDENT_DATABASE_USERNAME:olympiad_user}
+    password: ${STUDENT_DB_PASSWORD:olympiad_password_2026}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # The enrollments table and the unique constraint that protects against
+      # duplicate enrollments are created from the Enrollment entity mapping.
+      # See db/manual/V1__create_enrollments_table.sql for the equivalent DDL
+      # when the schema is managed outside of Hibernate.
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: ${JWT_SECRET_B64}
+
+server:
+  port: 8082
+
+# Course Service (port 8081). It is read to validate that a course exists and
+# is open for enrollment before an enrollment is stored.
+course:
+  service:
+    base-url: ${COURSE_SERVICE_BASE_URL:http://localhost:8081}
+    # Optional trusted service account token used for the service to service
+    # calls. When it is empty the bearer token of the incoming request is
+    # forwarded instead, which requires the caller to hold COURSE_READ.
+    token: ${COURSE_SERVICE_TOKEN:}
+    connect-timeout: ${COURSE_SERVICE_CONNECT_TIMEOUT:3s}
+    read-timeout: ${COURSE_SERVICE_READ_TIMEOUT:5s}

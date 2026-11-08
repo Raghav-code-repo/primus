@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="java.lang.Class">
+		<item key="selection" value=".authorizeHttpRequests(auth -&gt; auth"/>
+		<list key="findhistory">
+			<item value="openapi"/>
+			<item value="LiveClass liveClass = findClass(classId);"/>
+			<item value="liveClass "/>
+			<item value="join"/>
+			<item value="jsr310"/>
+			<item value="dependencyManagement"/>
+			<item value=".authorizeHttpRequests(auth -&gt; auth"/>
+			<item value="authenticationEntryPoint"/>
+			<item value="user.setStatus(status)"/>
+		</list>
+	</section>
+</section>

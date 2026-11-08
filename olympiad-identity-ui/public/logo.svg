@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" width="320" height="64">
+  <defs>
+    <linearGradient id="ola-mark" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B6BFF" />
+      <stop offset="0.55" stop-color="#5B4BE8" />
+      <stop offset="1" stop-color="#8B3FD1" />
+    </linearGradient>
+    <linearGradient id="ola-text" x1="64" y1="10" x2="64" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F2733" />
+      <stop offset="1" stop-color="#3A4A63" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(8 8)">
+    <rect x="0" y="0" width="48" height="48" rx="13" fill="url(#ola-mark)" />
+    <path d="M24 13.2 L38 20.8 L24 28.4 L10 20.8 Z" fill="#FFFFFF" fill-opacity="0.97" />
+    <path d="M17 24.4 L17 30.1 C17 33 20.1 35.3 24 35.3 C27.9 35.3 31 33 31 30.1 L31 24.4 L24 27.5 Z" fill="#FFFFFF" fill-opacity="0.8" />
+    <path d="M38 20.8 L38 32.2" stroke="#FFD166" stroke-width="1.9" stroke-linecap="round" />
+    <circle cx="38" cy="34.3" r="2.3" fill="#FFD166" />
+  </g>
+
+  <text x="72" y="27" font-family="Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="url(#ola-text)">Olympiad Learning</text>
+  <text x="72" y="47" font-family="Segoe UI, system-ui, -apple-system, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="url(#ola-text)">Academy</text>
+</svg>

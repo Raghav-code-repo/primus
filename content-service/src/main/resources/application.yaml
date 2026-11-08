@@ -1,0 +1,40 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: content-service
+
+  datasource:
+    url: ${CONTENT_DB_URL:jdbc:postgresql://localhost:5432/olympiad_content_db}
+    username: ${CONTENT_DB_USERNAME:olympiad_user}
+    password: ${CONTENT_DB_PASSWORD:olympiad_password_2026}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+
+storage:
+  s3:
+    endpoint: ${S3_ENDPOINT:http://localhost:8333}
+    region: ${S3_REGION:us-east-1}
+    bucket: ${S3_BUCKET:olympiad-content}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+

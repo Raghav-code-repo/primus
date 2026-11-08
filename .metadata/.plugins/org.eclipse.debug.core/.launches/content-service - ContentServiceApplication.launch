@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.springframework.ide.eclipse.boot.launch">
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/content-service/src/main/java/com/olympiad/content/ContentServiceApplication.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="CONTENT_DATABASE_PASSWORD" value="olympiad_password_2026"/>
+        <mapEntry key="JWT_SECRET" value="QeJM7uBC456/pymydXNsjcni2ghq40MiRjw8fnZOQfA="/>
+        <mapEntry key="S3_ACCESS_KEY" value="olympiad_dev_access"/>
+        <mapEntry key="S3_BUCKET" value="olympiad-content"/>
+        <mapEntry key="S3_ENDPOINT" value="http://localhost:8333"/>
+        <mapEntry key="S3_REGION" value="us-east-1"/>
+        <mapEntry key="S3_SECRET_KEY" value="YUKciGDaxjbyfTNLsOqcu9fPQ7XSTC+gkjrTD8mVu7g="/>
+    </mapAttribute>
+    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794106134824"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.springframework.ide.eclipse.boot.launch.BootMavenClassPathProvider"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.olympiad.content.ContentServiceApplication"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="content-service"/>
+    <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.springframework.ide.eclipse.boot.launch.BootMavenSourcePathProvider"/>
+    <stringAttribute key="process_factory_id" value="org.springframework.ide.eclipse.boot.launch.process.BootProcessFactory"/>
+    <booleanAttribute key="spring.boot.ansi.console" value="true"/>
+    <stringAttribute key="spring.boot.app.properties" value=""/>
+    <booleanAttribute key="spring.boot.auto-connect" value="true"/>
+    <booleanAttribute key="spring.boot.dash.hidden" value="false"/>
+    <booleanAttribute key="spring.boot.debug.enable" value="false"/>
+    <booleanAttribute key="spring.boot.fast.startup" value="true"/>
+    <booleanAttribute key="spring.boot.jmx.enable" value="true"/>
+    <booleanAttribute key="spring.boot.lifecycle.enable" value="true"/>
+    <stringAttribute key="spring.boot.lifecycle.termination.timeout" value="15000"/>
+    <booleanAttribute key="spring.boot.livebean.enable" value="false"/>
+    <stringAttribute key="spring.boot.livebean.port" value="0"/>
+    <stringAttribute key="spring.boot.profile" value=""/>
+</launchConfiguration>

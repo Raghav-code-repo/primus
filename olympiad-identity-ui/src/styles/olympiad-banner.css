@@ -1,0 +1,321 @@
+/* Olympiad Creative Showcase Banner (Login Screen Right Side) */
+
+.olympiad-promo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  padding: var(--space-6) var(--space-6);
+  background: var(--olympiad-promo-bg);
+  border-left: 1px solid var(--color-border);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+:root {
+  --olympiad-promo-bg: radial-gradient(circle at 80% 20%, rgba(238, 242, 255, 0.9) 0%, #ffffff 50%, #f5f3ff 100%);
+  --olympiad-promo-title: #2e1065;
+  --olympiad-promo-sub: #581c87;
+  --olympiad-promo-scope-bg: #4c1d95;
+  --olympiad-promo-check: #6b21a8;
+  --olympiad-stripe-odd: #ece8ff;
+  --olympiad-stripe-even: #f8f7ff;
+  --olympiad-ring: rgba(124, 58, 237, 0.18);
+  --olympiad-btn-bg: linear-gradient(135deg, #e11d48 0%, #db2777 50%, #c026d3 100%);
+  --olympiad-btn-shadow: 0 8px 24px rgba(225, 29, 72, 0.35);
+  --olympiad-contact-color: #475569;
+}
+
+:root[data-theme='dark'] {
+  --olympiad-promo-bg: radial-gradient(circle at 80% 20%, #1e1b4b 0%, #0f1422 55%, #0b0f19 100%);
+  --olympiad-promo-title: #f5f3ff;
+  --olympiad-promo-sub: #c084fc;
+  --olympiad-promo-scope-bg: #6d28d9;
+  --olympiad-promo-check: #a855f7;
+  --olympiad-stripe-odd: #1e1b4b;
+  --olympiad-stripe-even: #17153a;
+  --olympiad-ring: rgba(168, 85, 247, 0.3);
+  --olympiad-btn-bg: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #d946ef 100%);
+  --olympiad-btn-shadow: 0 8px 26px rgba(244, 63, 94, 0.4);
+  --olympiad-contact-color: #94a3b8;
+}
+
+/* Ambient glow orb behind visual */
+.olympiad-promo__ambient {
+  position: absolute;
+  top: -15%;
+  right: -10%;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, rgba(236, 72, 153, 0.06) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Top Brand Bar */
+.olympiad-promo__brand-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.olympiad-promo__logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.olympiad-promo__crest {
+  filter: drop-shadow(0 4px 10px rgba(124, 58, 237, 0.25));
+}
+
+.olympiad-promo__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.olympiad-promo__brand-title {
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  color: var(--olympiad-promo-title);
+}
+
+.olympiad-promo__brand-sub {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  color: var(--color-primary);
+}
+
+.olympiad-promo__tagline {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Main Content Layout (Info on left, Circular Artwork on right) */
+.olympiad-promo__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: var(--space-4) 0;
+}
+
+@media (min-width: 1080px) {
+  .olympiad-promo__content {
+    grid-template-columns: 1.08fr 1fr;
+    gap: var(--space-6);
+  }
+}
+
+/* Info Column */
+.olympiad-promo__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.olympiad-promo__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.olympiad-promo__subtitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olympiad-promo-sub);
+}
+
+.olympiad-promo__main-title {
+  font-size: clamp(2.2rem, 3.8vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--olympiad-promo-title);
+  margin: 0;
+}
+
+/* Scope Pill */
+.olympiad-promo__scope-pill {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 20px;
+  background: var(--olympiad-promo-scope-bg);
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(76, 29, 149, 0.28);
+}
+
+.olympiad-promo__scope-text {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+/* Features List */
+.olympiad-promo__features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.olympiad-promo__feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.olympiad-promo__check-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--olympiad-promo-check);
+  filter: drop-shadow(0 2px 5px rgba(107, 33, 168, 0.2));
+}
+
+.olympiad-promo__feature-label {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  letter-spacing: -0.01em;
+}
+
+/* Action CTA */
+.olympiad-promo__action {
+  margin-top: 6px;
+}
+
+.olympiad-promo__btn-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 30px;
+  border-radius: 9999px;
+  background: var(--olympiad-btn-bg);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: var(--olympiad-btn-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+}
+
+.olympiad-promo__btn-apply:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(225, 29, 72, 0.45);
+}
+
+.olympiad-promo__btn-apply:active {
+  transform: translateY(0);
+}
+
+/* Contact Footer */
+.olympiad-promo__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--color-border);
+}
+
+.olympiad-promo__contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--olympiad-contact-color);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.olympiad-promo__contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+/* Visual Section (Circular Medallion) */
+.olympiad-promo__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.olympiad-promo__medallion {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  filter: drop-shadow(0 16px 36px rgba(76, 29, 149, 0.18));
+  user-select: none;
+}
+
+/* Stripes styling */
+.olympiad-promo__stripe-odd {
+  fill: var(--olympiad-stripe-odd);
+}
+
+.olympiad-promo__stripe-even {
+  fill: var(--olympiad-stripe-even);
+}
+
+.olympiad-promo__circle-ring {
+  stroke: var(--olympiad-ring);
+}
+
+/* Floating Mathematical Particles Animation */
+.olympiad-promo__particle {
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 700;
+  fill: var(--olympiad-promo-check);
+  opacity: 0.35;
+  animation: floatMath 5s ease-in-out infinite alternate;
+}
+
+.particle-1 { animation-delay: 0s; }
+.particle-2 { animation-delay: 1.2s; }
+.particle-3 { animation-delay: 2.4s; }
+.particle-4 { animation-delay: 3.6s; }
+.particle-5 { animation-delay: 4.8s; }
+
+@keyframes floatMath {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
