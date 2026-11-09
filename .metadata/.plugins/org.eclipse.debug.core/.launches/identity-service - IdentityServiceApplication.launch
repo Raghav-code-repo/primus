@@ -10,7 +10,7 @@
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="JWT_SECRET" value="QeJM7uBC456/pymydXNsjcni2ghq40MiRjw8fnZOQfA="/>
     </mapAttribute>
-    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794106129930"/>
+    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794155855943"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>

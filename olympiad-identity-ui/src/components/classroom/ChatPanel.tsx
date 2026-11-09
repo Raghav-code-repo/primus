@@ -7,7 +7,6 @@ import {
 } from 'react'
 import {
   getStompClient,
-  listChatMessages,
   sendChatMessage,
   subscribeToChat,
   unsubscribeChat,
@@ -59,19 +58,7 @@ export function ChatPanel({
   }, [messages])
 
   useEffect(() => {
-    let active = true
-    const load = async () => {
-      try {
-        const history = await listChatMessages(classId, recipientUserId ?? undefined)
-        if (active) setMessages(history)
-      } catch {
-        // history load is best-effort; the live stream still works
-      }
-    }
-    void load()
-    return () => {
-      active = false
-    }
+    // Java chat history is intentionally not loaded here; realtime chat uses Socket.IO.
   }, [classId, recipientUserId])
 
   useEffect(() => {
@@ -234,7 +221,7 @@ export function ChatPanel({
               <option value="">Select a student</option>
               {participants.map((p) => (
                 <option key={p.identity} value={p.identity}>
-                  {p.name || p.identity}
+                  {p.name && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(p.name) ? p.name : 'Participant'}
                 </option>
               ))}
             </select>

@@ -2,6 +2,7 @@
 package com.olympiad.liveclass.service;
 
 import com.olympiad.liveclass.client.StudentEnrollmentClient;
+import com.olympiad.liveclass.integration.node.NodeClassroomClient;
 import com.olympiad.liveclass.dto.CreateLiveClassRequest;
 import com.olympiad.liveclass.dto.JoinLiveClassResponse;
 import com.olympiad.liveclass.dto.RaisedHandResponse;
@@ -42,16 +43,20 @@ public class LiveClassService {
     private final StudentEnrollmentClient enrollmentClient;
     private final HttpServletRequest request;
 
+    private final NodeClassroomClient nodeClassroomClient;
+
     public LiveClassService(
             LiveClassRepository repository,
             LiveClassAssignmentRepository assignmentRepository,
             RaisedHandRepository raisedHandRepository,
             StudentEnrollmentClient enrollmentClient,
+            NodeClassroomClient nodeClassroomClient,
             HttpServletRequest request) {
         this.repository = repository;
         this.assignmentRepository = assignmentRepository;
         this.raisedHandRepository = raisedHandRepository;
         this.enrollmentClient = enrollmentClient;
+        this.nodeClassroomClient = nodeClassroomClient;
         this.request = request;
     }
 
@@ -269,6 +274,12 @@ public class LiveClassService {
         String participantRole = isAdmin
                 ? "ADMIN"
                 : isTeacher ? "TEACHER" : "STUDENT";
+
+        try {
+            nodeClassroomClient.createOrGetSession(liveClass.getId().toString());
+        } catch (Exception e) {
+            // Do not fail join if Node.js classroom service is unavailable.
+        }
 
         return new JoinLiveClassResponse(
                 liveClass.getId(),

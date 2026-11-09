@@ -42,8 +42,9 @@ livekit:
   api-secret: ${LIVEKIT_API_SECRET:secretkeysecretkeysecretkey12}
   token-ttl-millis: 1800000
 
-identity-service:
-  base-url: http://localhost:8080
+node-classroom:
+  base-url: ${NODE_CLASSROOM_BASE_URL:http://localhost:8091}
+  internal-token: ${NODE_CLASSROOM_INTERNAL_TOKEN:dev-internal-token}
 
 student-service:
   base-url: http://localhost:8082

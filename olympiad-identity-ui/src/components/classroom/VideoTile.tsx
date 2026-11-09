@@ -7,6 +7,8 @@ import {
 import { Track } from 'livekit-client'
 import { Mic, MicOff, Smartphone } from 'lucide-react'
 import { ParticipantTile, VideoTrack } from '@livekit/components-react'
+import { useAuth } from '../../auth/useAuth'
+import { resolveDisplayName, resolveParticipantDisplayName } from '../../utils/displayName'
 
 interface VideoTileProps {
   isFocused?: boolean
@@ -17,13 +19,16 @@ export function VideoTile({
   isFocused = false,
   speakerIdentities,
 }: VideoTileProps) {
+  const { user } = useAuth()
   const { identity: infoIdentity, name } = useParticipantInfo()
   const cameraTracks = useParticipantTracks([Track.Source.Camera], infoIdentity)
   const screenTracks = useParticipantTracks([Track.Source.ScreenShare], infoIdentity)
   const micTracks = useParticipantTracks([Track.Source.Microphone], infoIdentity)
   const { localParticipant } = useLocalParticipant()
   const isLocal = infoIdentity === localParticipant?.identity
-  const displayName = name || infoIdentity || (isLocal ? 'You' : 'Participant')
+  const displayName = isLocal
+    ? resolveDisplayName({ firstName: user?.firstName, lastName: user?.lastName, email: user?.email, isLocal: true })
+    : resolveParticipantDisplayName(infoIdentity, name, { isLocal })
   const cameraTrackRef = cameraTracks[0]
   const screenTrackRef = screenTracks[0]
   const isScreenSharing = screenTrackRef != null
@@ -31,14 +36,33 @@ export function VideoTile({
   const micEnabled = micTracks.length > 0
 
   const loggedTrackRefs = useRef<Set<string>>(new Set())
+  const mediaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ref = trackRef
-    if (!ref) return
+    if (!ref) {
+      console.info('[LiveKit] No camera track ref for participant', infoIdentity)
+      return
+    }
     const sid = ref.publication.track?.sid ?? ref.publication.trackSid
     const key = `${infoIdentity ?? ''}:${sid}`
     if (loggedTrackRefs.current.has(key)) return
     const isRemote = !isLocal
+    const track = ref.publication.track
+    const mediaStreamTrack = track?.mediaStreamTrack
+    console.info('[LiveKit] Track diagnostics:', {
+      participant: infoIdentity,
+      isLocal,
+      sid,
+      source: ref.source,
+      kind: track?.kind,
+      publicationState: ref.publication.track ? 'published' : 'unpublished',
+      isPublished: Boolean(ref.publication.track),
+      readyState: mediaStreamTrack?.readyState,
+      enabled: mediaStreamTrack?.enabled,
+      muted: mediaStreamTrack?.muted,
+      subscribed: ref.publication.isSubscribed,
+    })
     if (ref.source === Track.Source.Camera && isRemote) {
       console.info(
         '[LiveKit] Remote camera track subscribed:',
@@ -57,6 +81,32 @@ export function VideoTile({
       )
     }
     loggedTrackRefs.current.add(key)
+
+    const inspectVideo = () => {
+      const video = mediaRef.current?.querySelector('video') as HTMLVideoElement | null
+      if (!video) {
+        console.warn('[LiveKit] No video element found for', infoIdentity)
+        return
+      }
+      console.info('[LiveKit] Video element diagnostics:', {
+        participant: infoIdentity,
+        exists: true,
+        srcObject: Boolean(video.srcObject),
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        readyState: video.readyState,
+        paused: video.paused,
+        muted: video.muted,
+        autoplay: video.autoplay,
+      })
+      void video.play().then(() => {
+        console.info('[LiveKit] video.play() resolved for', infoIdentity)
+      }).catch((err) => {
+        console.warn('[LiveKit] video.play() rejected for', infoIdentity, err?.name, err?.message)
+      })
+    }
+    const timer = window.setTimeout(inspectVideo, 500)
+    return () => window.clearTimeout(timer)
   }, [trackRef, infoIdentity, isLocal])
 
   return (
@@ -78,12 +128,11 @@ export function VideoTile({
           Active speaker
         </span>
       )}
-      <div className="video-tile__media">
+      <div className="video-tile__media" ref={mediaRef}>
         {trackRef ? (
           <ParticipantTile trackRef={trackRef}>
             <VideoTrack
               trackRef={trackRef}
-              manageSubscription={!isLocal}
               autoPlay
               playsInline
               muted={isLocal}
@@ -109,12 +158,15 @@ export function VideoTile({
 interface ScreenShareFocusTileProps {}
 
 export function ScreenShareFocusTile({}: ScreenShareFocusTileProps) {
+  const { user } = useAuth()
   const { identity: infoIdentity, name } = useParticipantInfo()
   const screenTracks = useParticipantTracks([Track.Source.ScreenShare], infoIdentity)
   const { localParticipant } = useLocalParticipant()
   const isLocal = infoIdentity === localParticipant?.identity
   const trackRef = screenTracks[0]
-  const displayName = name || infoIdentity || (isLocal ? 'You' : 'Participant')
+  const displayName = isLocal
+    ? resolveDisplayName({ firstName: user?.firstName, lastName: user?.lastName, email: user?.email, isLocal: true })
+    : resolveParticipantDisplayName(infoIdentity, name, { isLocal })
 
   return (
     <section className="video-tile video-tile--focused">
@@ -124,7 +176,6 @@ export function ScreenShareFocusTile({}: ScreenShareFocusTileProps) {
           <ParticipantTile trackRef={trackRef}>
             <VideoTrack
               trackRef={trackRef}
-              manageSubscription={!isLocal}
               autoPlay
               playsInline
               muted={isLocal}

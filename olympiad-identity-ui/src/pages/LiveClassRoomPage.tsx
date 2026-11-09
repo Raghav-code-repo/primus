@@ -12,13 +12,6 @@ import {
 import { getLiveKitTokenGet } from '../api/liveClassApi'
 import {
   disconnectStomp,
-  getActiveQuestion,
-  startQuestion,
-  endQuestion,
-  revealAnswer,
-  pauseQuestion,
-  resumeQuestion,
-  submitAnswer,
   raiseHand,
   lowerHand,
   listRaisedHands,
@@ -27,21 +20,20 @@ import {
   muteParticipant,
   muteAllParticipants,
 } from '../api/classroomApi'
-import {
-  type ActiveQuestionView,
-  type RaisedHand,
-} from '../types/classroom'
+import type { RaisedHand } from '../types/classroom'
 import { useToast } from '../hooks/useToast'
+import { useClassroomSocket } from '../hooks/useClassroomSocket'
+import { resolveDisplayName } from '../utils/displayName'
 
-import { ROLE_STUDENT, ROLE_TEACHER } from '../auth/roles'
+import { ROLE_TEACHER } from '../auth/roles'
 import { useAuth } from '../auth/useAuth'
 import { ClassroomHeader } from '../components/classroom/ClassroomHeader'
 import { VideoGrid } from '../components/classroom/VideoGrid'
 import { BottomToolbar } from '../components/classroom/BottomToolbar'
-import { ChatPanel } from '../components/classroom/ChatPanel'
+import { SocketChatPanel } from '../components/classroom/SocketChatPanel'
+import { SocketQuestionPanel } from '../components/classroom/SocketQuestionPanel'
+import { SocketModerationPanel } from '../components/classroom/SocketModerationPanel'
 import { ParticipantsPanel } from '../components/classroom/ParticipantsPanel'
-import { TeacherQuestionPanel } from '../components/classroom/TeacherQuestionPanel'
-import { StudentQuestionPanel } from '../components/classroom/StudentQuestionPanel'
 
 type Tab = 'chat' | 'participants' | 'questions'
 
@@ -215,7 +207,7 @@ export function LiveClassRoomPage() {
         token={token}
         connect={true}
         audio={false}
-        video={true}
+        video={false}
         onError={handleError}
         onMediaDeviceFailure={handleMediaDeviceFailure}
         onDisconnected={handleDisconnected}
@@ -242,22 +234,22 @@ function LiveClassRoomContent({
   onClearMediaError: () => void
 }) {
   const navigate = useNavigate()
-  const { user, isAuthenticated, hasPermission, hasRole } = useAuth()
+  const { user, isAuthenticated, hasRole } = useAuth()
   const { toast } = useToast()
 
   const [tab, setTab] = useState<Tab>('chat')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [handRaised, setHandRaised] = useState(false)
   const [raisedHands, setRaisedHands] = useState<RaisedHand[]>([])
-  const [myAnswer, setMyAnswer] = useState<{ optionIndex: number; isCorrect: boolean | null } | null>(null)
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [activeQuestion, setActiveQuestion] = useState<ActiveQuestionView | null>(null)
+  const [_unreadCount, _setUnreadCount] = useState(0)
   const [questionError, setQuestionError] = useState<string | null>(null)
 
   const { localParticipant, isCameraEnabled, isMicrophoneEnabled, isScreenShareEnabled } = useLocalParticipant()
+  const { socket, connected: socketConnected } = useClassroomSocket(classId)
   const participants = useParticipants()
 
   const cameraEnabledRef = useRef(isCameraEnabled)
+  const cameraAcquiringRef = useRef(false)
   const [cameraToggling, setCameraToggling] = useState(false)
   const [microphoneToggling, setMicrophoneToggling] = useState(false)
 
@@ -300,7 +292,8 @@ function LiveClassRoomContent({
   }, [isCameraEnabled])
 
   const handleCameraToggle = useCallback(async () => {
-    if (!localParticipant || cameraToggling) return
+    if (!localParticipant || cameraToggling || cameraAcquiringRef.current) return
+    cameraAcquiringRef.current = true
     setCameraToggling(true)
     try {
       await localParticipant.setCameraEnabled(!isCameraEnabled)
@@ -309,6 +302,7 @@ function LiveClassRoomContent({
       setQuestionError(message)
       toast({ title: message, variant: 'error' })
     } finally {
+      cameraAcquiringRef.current = false
       setCameraToggling(false)
     }
   }, [localParticipant, isCameraEnabled, cameraToggling, toast])
@@ -327,28 +321,9 @@ function LiveClassRoomContent({
     }
   }, [localParticipant, isMicrophoneEnabled, microphoneToggling, toast])
 
-  const canChatSend = isAuthenticated && hasPermission('LIVE_CLASS_CHAT_SEND')
-  const canQuestionControl = isAuthenticated && hasPermission('LIVE_CLASS_QUESTION_CONTROL')
-  const canAnswerReveal = isAuthenticated && hasPermission('LIVE_CLASS_ANSWER_REVEAL')
-  const canAnswerSubmit = isAuthenticated && hasPermission('LIVE_CLASS_ANSWER_SUBMIT')
-  const isStudent = isAuthenticated && hasRole(ROLE_STUDENT)
   const isTeacher = isAuthenticated && hasRole(ROLE_TEACHER)
 
   useEffect(() => { return () => { disconnectStomp() } }, [])
-
-  useEffect(() => {
-    let active = true
-    const refresh = async () => {
-      try {
-        const view = await getActiveQuestion(classId)
-        if (!active) return
-        setActiveQuestion(view)
-      } catch { /* best-effort */ }
-    }
-    void refresh()
-    const timer = setInterval(refresh, 2000)
-    return () => { active = false; clearInterval(timer) }
-  }, [classId])
 
   useEffect(() => {
     if (!isTeacher) return
@@ -365,66 +340,6 @@ function LiveClassRoomContent({
   }, [classId, isTeacher])
 
   const handleLeave = useCallback(() => { navigate('/live-classes', { replace: true }) }, [navigate])
-
-  const handleStartQuestion = useCallback(async (questionId: string, durationSeconds: number) => {
-    if (!canQuestionControl) return
-    setQuestionError(null)
-    try { await startQuestion(classId, questionId, durationSeconds) }
-    catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to start the question.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canQuestionControl, toast])
-
-  const handleEndQuestion = useCallback(async (sessionId: string) => {
-    if (!canQuestionControl) return
-    setQuestionError(null)
-    try { await endQuestion(classId, sessionId) }
-    catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to end the question.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canQuestionControl, toast])
-
-  const handleRevealAnswer = useCallback(async (sessionId: string) => {
-    if (!canAnswerReveal) return
-    setQuestionError(null)
-    try { await revealAnswer(classId, sessionId) }
-    catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reveal the answer.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canAnswerReveal, toast])
-
-  const handlePauseQuestion = useCallback(async (sessionId: string) => {
-    if (!canQuestionControl) return
-    try { await pauseQuestion(classId, sessionId) }
-    catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to pause the timer.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canQuestionControl, toast])
-
-  const handleResumeQuestion = useCallback(async (sessionId: string) => {
-    if (!canQuestionControl) return
-    try { await resumeQuestion(classId, sessionId) }
-    catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to resume the timer.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canQuestionControl, toast])
-
-  const handleSubmitAnswer = useCallback(async (optionIndex: number) => {
-    if (!canAnswerSubmit || !isStudent || !activeQuestion?.id || myAnswer !== null) return
-    try {
-      const result = await submitAnswer(classId, activeQuestion.id, optionIndex)
-      setMyAnswer({ optionIndex, isCorrect: result.isCorrect ?? null })
-      toast({ title: 'Answer submitted', variant: 'success' })
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to submit your answer.'
-      setQuestionError(message); toast({ title: message, variant: 'error' })
-    }
-  }, [classId, canAnswerSubmit, isStudent, activeQuestion, myAnswer, toast])
 
   const handleRaiseHand = useCallback(async () => {
     if (!isAuthenticated) return
@@ -479,7 +394,6 @@ function LiveClassRoomContent({
     }
   }, [classId, isTeacher, toast])
 
-  const alreadyAnswered = myAnswer !== null
   const participantCount = participants.length + 1
 
   return (
@@ -495,28 +409,66 @@ function LiveClassRoomContent({
           )}
           <div className="tabs">
             <button type="button" role="tab" aria-selected={tab === 'chat'} className={`tabs__tab${tab === 'chat' ? ' tabs__tab--active' : ''}`} onClick={() => setTab('chat')}>
-              Chat{unreadCount > 0 && <span className="badge badge--danger badge--sm" style={{ marginLeft: 'var(--space-1)' }}>{unreadCount}</span>}
+              Chat{_unreadCount > 0 && <span className="badge badge--danger badge--sm" style={{ marginLeft: 'var(--space-1)' }}>{_unreadCount}</span>}
             </button>
             <button type="button" role="tab" aria-selected={tab === 'participants'} className={`tabs__tab${tab === 'participants' ? ' tabs__tab--active' : ''}`} onClick={() => setTab('participants')}>
               Participants<span className="badge badge--neutral badge--sm" style={{ marginLeft: 'var(--space-1)' }}>{participantCount}</span>
             </button>
             <button type="button" role="tab" aria-selected={tab === 'questions'} className={`tabs__tab${tab === 'questions' ? ' tabs__tab--active' : ''}`} onClick={() => setTab('questions')}>
-              Questions{activeQuestion && <span className="badge badge--primary badge--sm" style={{ marginLeft: 'var(--space-1)' }}>Active</span>}
+              Questions
             </button>
           </div>
           <div className="sidebar__content">
+            {questionError && (
+              <div className="alert alert--error sidebar__alert" role="alert">
+                <p className="alert__title">Classroom error</p>
+                <div className="alert__body">{questionError}</div>
+              </div>
+            )}
+
             {tab === 'chat' && (
-              <ChatPanel classId={classId} user={user ? { id: user.id, name: user.email } : { id: '', name: '' }} canChatSend={canChatSend} isTeacher={isTeacher} isStudent={isStudent} participants={participants.map((p) => ({ identity: p.identity, name: p.name }))} onUnreadCountChange={setUnreadCount} />
+              <div className="sidebar__tab-panel sidebar__tab-panel--chat">
+                <SocketChatPanel
+                  socket={socket}
+                  connected={socketConnected}
+                  classId={classId}
+                  userId={user?.id ?? null}
+                  displayName={resolveDisplayName({ firstName: user?.firstName, lastName: user?.lastName, email: user?.email, isLocal: true })}
+                />
+              </div>
             )}
+
             {tab === 'participants' && (
-              <ParticipantsPanel isTeacher={isTeacher} handRaised={handRaised} onLowerOwnHand={handleLowerOwnHand} raisedHands={raisedHands} onAcceptRaisedHand={handleAcceptRaisedHand} onLowerRaisedHand={handleLowerRaisedHand} onMuteParticipant={handleMuteParticipant} onMuteAllParticipants={handleMuteAllParticipants} onError={(m: string) => setQuestionError(m)} />
+              <div className="sidebar__tab-panel">
+                <ParticipantsPanel
+                  isTeacher={isTeacher}
+                  handRaised={handRaised}
+                  onLowerOwnHand={handleLowerOwnHand}
+                  raisedHands={raisedHands}
+                  onAcceptRaisedHand={handleAcceptRaisedHand}
+                  onLowerRaisedHand={handleLowerRaisedHand}
+                  onMuteParticipant={handleMuteParticipant}
+                  onMuteAllParticipants={handleMuteAllParticipants}
+                  onError={(m: string) => setQuestionError(m)}
+                  localDisplayName={resolveDisplayName({ firstName: user?.firstName, lastName: user?.lastName, email: user?.email, isLocal: true })}
+                  localEmail={user?.email ?? null}
+                />
+                {isTeacher && (
+                  <SocketModerationPanel
+                    socket={socket ?? null}
+                    classId={classId}
+                    isTeacher={isTeacher}
+                    participants={participants.map((p) => ({ identity: p.identity, name: resolveDisplayName({ name: p.name, identity: p.identity, isLocal: p.identity === localParticipant?.identity, firstName: p.identity === localParticipant?.identity ? user?.firstName : undefined, lastName: p.identity === localParticipant?.identity ? user?.lastName : undefined, email: p.identity === localParticipant?.identity ? user?.email : undefined }) }))}
+                  />
+                )}
+              </div>
             )}
-            {tab === 'questions' && (isTeacher ? (
-              <TeacherQuestionPanel classId={classId} activeQuestion={activeQuestion} canControl={canQuestionControl} canReveal={canAnswerReveal} onStartQuestion={handleStartQuestion} onEndQuestion={handleEndQuestion} onRevealAnswer={handleRevealAnswer} onPauseQuestion={handlePauseQuestion} onResumeQuestion={handleResumeQuestion} onError={(m: string) => setQuestionError(m)} />
-            ) : (
-              <StudentQuestionPanel activeQuestion={activeQuestion} myAnswer={myAnswer} alreadyAnswered={alreadyAnswered} onSubmitAnswer={handleSubmitAnswer} onError={(m: string) => setQuestionError(m)} />
-            ))}
-            {questionError && (<div className="alert alert--error" role="alert"><p className="alert__title">Question error</p><div className="alert__body">{questionError}</div></div>)}
+
+            {tab === 'questions' && (
+              <div className="sidebar__tab-panel">
+                <SocketQuestionPanel socket={socket ?? null} classId={classId} isTeacher={isTeacher} />
+              </div>
+            )}
           </div>
         </aside>
       </div>
@@ -535,7 +487,7 @@ function LiveClassRoomContent({
         onParticipantsToggle={() => setTab('participants')}
         onQuestionsToggle={() => setTab('questions')}
         activeTab={tab}
-        unreadCount={unreadCount}
+        unreadCount={_unreadCount}
         participantCount={participantCount}
         onMuteAll={handleMuteAllParticipants}
         onLaunchQuestion={() => setTab('questions')}

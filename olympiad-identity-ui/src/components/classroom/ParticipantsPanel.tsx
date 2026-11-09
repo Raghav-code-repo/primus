@@ -7,6 +7,7 @@ import { IconButton } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ParticipantAvatar } from '../ui/participant-avatar'
 import { Hand, Mic, Video } from 'lucide-react'
+import { resolveDisplayName, resolveParticipantDisplayName } from '../../utils/displayName'
 
 interface ParticipantRowProps {
   identity: string
@@ -19,6 +20,8 @@ interface ParticipantRowProps {
   onMute: (userId: string) => void
   onLowerOwn: () => void
   onError: (message: string) => void
+  localDisplayName?: string | null
+  localEmail?: string | null
 }
 
 function ParticipantRow({
@@ -31,11 +34,16 @@ function ParticipantRow({
   onLower,
   onMute,
   onLowerOwn,
+  localDisplayName,
+  localEmail,
 }: ParticipantRowProps) {
   const handRaised = Boolean(hand)
   const handleAccept = useCallback(() => void onAccept(identity), [onAccept, identity])
   const handleLower = useCallback(() => void onLower(identity), [onLower, identity])
   const handleMute = useCallback(() => void onMute(identity), [onMute, identity])
+  const displayName = isMe
+    ? (localDisplayName || resolveDisplayName({ name, identity, email: localEmail, isLocal: true }))
+    : resolveParticipantDisplayName(identity, name, { isLocal: false })
 
   return (
     <div
@@ -48,13 +56,13 @@ function ParticipantRow({
         .join(' ')}
     >
               <ParticipantAvatar
-                user={{ id: identity, name: name || undefined }}
-                name={name ?? null}
+                user={{ id: identity, name: displayName }}
+                name={displayName}
                 size="md"
               />
       <div className="participant-row__meta">
         <div className="participant-row__name">
-          {name || identity}
+          {displayName}
           {isMe && <span className="badge badge--neutral badge--sm">You</span>}
           {handRaised && <span className="badge badge--warning badge--sm">Hand raised</span>}
         </div>
@@ -128,6 +136,8 @@ export interface ParticipantsPanelProps {
   onMuteParticipant: (userId: string) => void
   onMuteAllParticipants: () => void
   onError: (message: string) => void
+  localDisplayName?: string | null
+  localEmail?: string | null
 }
 
 export function ParticipantsPanel({
@@ -140,6 +150,8 @@ export function ParticipantsPanel({
   onMuteParticipant,
   onMuteAllParticipants,
   onError,
+  localDisplayName,
+  localEmail,
 }: ParticipantsPanelProps) {
   const { toast } = useToast()
   const participants = useParticipants()
@@ -193,6 +205,8 @@ export function ParticipantsPanel({
               onMute={onMuteParticipant}
               onLowerOwn={onLowerOwnHand}
               onError={onError}
+              localDisplayName={localDisplayName}
+              localEmail={localEmail}
             />
           )
         })}

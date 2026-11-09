@@ -13,7 +13,7 @@
         <mapEntry key="LIVEKIT_API_SECRET" value="99DcCN87vNguzFa6AEpiVetiG/h8E6HcXYOmFCj4geE="/>
         <mapEntry key="LIVEKIT_URL" value="ws://localhost:7880"/>
     </mapAttribute>
-    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794106127258"/>
+    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794155869703"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
