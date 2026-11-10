@@ -8,9 +8,14 @@ import { useAuth } from '../../auth/useAuth'
 export interface ClassroomHeaderProps {
   onLeave: () => void
   onToggleSidebar: () => void
+  classTitle?: string | null
 }
 
-export function ClassroomHeader({ onLeave, onToggleSidebar }: ClassroomHeaderProps) {
+export function ClassroomHeader({
+  onLeave,
+  onToggleSidebar,
+  classTitle,
+}: ClassroomHeaderProps) {
   const roomInfo = useRoomInfo()
   const connectionStatus = useConnectionState()
   const participants = useParticipants()
@@ -23,6 +28,12 @@ export function ClassroomHeader({ onLeave, onToggleSidebar }: ClassroomHeaderPro
       setSessionStart(new Date())
     }
   }, [connectionStatus, sessionStart])
+
+  const title = classTitle ?? roomInfo?.name ?? 'Live Class'
+
+  useEffect(() => {
+    document.title = title
+  }, [title])
 
   const teacherName = user
     ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email
@@ -37,8 +48,6 @@ export function ClassroomHeader({ onLeave, onToggleSidebar }: ClassroomHeaderPro
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
   }, [sessionStart])
 
-  const title = roomInfo?.name ?? 'Live Class'
-
   const handleLeave = useCallback(() => {
     onLeave()
   }, [onLeave])
@@ -50,7 +59,11 @@ export function ClassroomHeader({ onLeave, onToggleSidebar }: ClassroomHeaderPro
         <div className="classroom__title-group">
           <h1 className="classroom__title">{title}</h1>
           <p className="classroom__subtitle">
-            {roomInfo?.name ? `Room · ${roomInfo.name}` : 'Olympiad live classroom'}
+            {classTitle
+              ? 'Olympiad live classroom'
+              : roomInfo?.name
+              ? `Room · ${roomInfo.name}`
+              : 'Olympiad live classroom'}
           </p>
         </div>
       </div>

@@ -9,7 +9,7 @@ import {
   useParticipants,
 } from '@livekit/components-react'
 
-import { getLiveKitTokenGet } from '../api/liveClassApi'
+import { getLiveKitTokenGet, getLiveClass } from '../api/liveClassApi'
 import {
   disconnectStomp,
   raiseHand,
@@ -120,6 +120,7 @@ export function LiveClassRoomPage() {
   const { id } = useParams<{ id: string }>()
   const [token, setToken] = useState<string | null>(null)
   const [serverUrl, setServerUrl] = useState<string | null>(null)
+  const [classTitle, setClassTitle] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [mediaError, setMediaError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -139,7 +140,16 @@ export function LiveClassRoomPage() {
         if (!active) return
         setToken(response.token)
         setServerUrl(response.url)
-        setLoading(false)
+
+        // Fetch the human-readable class title for display. This is
+        // independent of the token so a failure here never blocks joining.
+        try {
+          const liveClassData = await getLiveClass(id)
+          if (!active) return
+          setClassTitle(liveClassData.title ?? null)
+        } catch (err) {
+          console.warn('[LiveClass] Failed to load class details:', err)
+        }
       } catch (err) {
         if (!active) return
         const status = (err as { status?: number })?.status
@@ -150,6 +160,9 @@ export function LiveClassRoomPage() {
         )
         setLoading(false)
       }
+
+      if (!active) return
+      setLoading(false)
     })()
     return () => { active = false }
   }, [id])
@@ -217,6 +230,7 @@ export function LiveClassRoomPage() {
         <ConnectionStateToast />
         <LiveClassRoomContent
           classId={id}
+          classTitle={classTitle}
           mediaError={mediaError}
           onClearMediaError={() => setMediaError(null)}
         />
@@ -226,10 +240,12 @@ export function LiveClassRoomPage() {
 
 function LiveClassRoomContent({
   classId,
+  classTitle,
   mediaError,
   onClearMediaError,
 }: {
   classId: string
+  classTitle?: string | null
   mediaError: string | null
   onClearMediaError: () => void
 }) {
@@ -398,7 +414,11 @@ function LiveClassRoomContent({
 
   return (
     <div className="classroom-shell">
-      <ClassroomHeader onLeave={handleLeave} onToggleSidebar={() => setSidebarOpen((o) => !o)} />
+      <ClassroomHeader
+        onLeave={handleLeave}
+        onToggleSidebar={() => setSidebarOpen((o) => !o)}
+        classTitle={classTitle}
+      />
       <div className="classroom__body">
         <main className="classroom__main"><VideoGrid /></main>
         <aside className={`classroom__sidebar${sidebarOpen ? ' classroom__sidebar--open' : ''}`}>

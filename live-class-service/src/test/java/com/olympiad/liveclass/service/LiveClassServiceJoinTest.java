@@ -5,6 +5,7 @@ import com.olympiad.liveclass.client.StudentEnrollmentClient;
 import com.olympiad.liveclass.dto.JoinLiveClassResponse;
 import com.olympiad.liveclass.entity.LiveClass;
 import com.olympiad.liveclass.enums.LiveClassStatus;
+import com.olympiad.liveclass.integration.node.NodeClassroomClient;
 import com.olympiad.liveclass.repository.LiveClassAssignmentRepository;
 import com.olympiad.liveclass.repository.LiveClassRepository;
 import com.olympiad.liveclass.repository.RaisedHandRepository;
@@ -22,20 +23,29 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LiveClassServiceJoinTest {
 
-    private static final UUID CLASS_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
-    private static final UUID COURSE_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
-    private static final UUID TEACHER_ID = UUID.fromString("650e8400-e29b-41d4-a716-446655440000");
-    private static final UUID STUDENT_ID = UUID.fromString("750e8400-e29b-41d4-a716-446655440000");
-    private static final UUID ADMIN_ID = UUID.fromString("850e8400-e29b-41d4-a716-446655440000");
-    private static final UUID OTHER_TEACHER_ID = UUID.fromString("950e8400-e29b-41d4-a716-446655440000");
+    private static final UUID CLASS_ID =
+            UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+
+    private static final UUID COURSE_ID =
+            UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+
+    private static final UUID TEACHER_ID =
+            UUID.fromString("650e8400-e29b-41d4-a716-446655440000");
+
+    private static final UUID STUDENT_ID =
+            UUID.fromString("750e8400-e29b-41d4-a716-446655440000");
+
+    private static final UUID ADMIN_ID =
+            UUID.fromString("850e8400-e29b-41d4-a716-446655440000");
+
+    private static final UUID OTHER_TEACHER_ID =
+            UUID.fromString("950e8400-e29b-41d4-a716-446655440000");
 
     @Mock
     private LiveClassRepository repository;
@@ -50,6 +60,9 @@ class LiveClassServiceJoinTest {
     private StudentEnrollmentClient enrollmentClient;
 
     @Mock
+    private NodeClassroomClient nodeClassroomClient;
+
+    @Mock
     private HttpServletRequest request;
 
     private LiveClassService createService() {
@@ -58,7 +71,9 @@ class LiveClassServiceJoinTest {
                 assignmentRepository,
                 raisedHandRepository,
                 enrollmentClient,
-                request);
+                nodeClassroomClient,
+                request
+        );
     }
 
     private LiveClass scheduledClass(UUID teacherId) {
@@ -94,35 +109,60 @@ class LiveClassServiceJoinTest {
     }
 
     private LiveClassPrincipal studentPrincipal() {
-        return new LiveClassPrincipal(STUDENT_ID.toString(), "student@test.com", Set.of("STUDENT"));
+        return new LiveClassPrincipal(
+                STUDENT_ID.toString(),
+                "student@test.com",
+                Set.of("STUDENT")
+        );
     }
 
     private LiveClassPrincipal teacherPrincipal() {
-        return new LiveClassPrincipal(TEACHER_ID.toString(), "teacher@test.com", Set.of("TEACHER"));
+        return new LiveClassPrincipal(
+                TEACHER_ID.toString(),
+                "teacher@test.com",
+                Set.of("TEACHER")
+        );
     }
 
     private LiveClassPrincipal adminPrincipal() {
-        return new LiveClassPrincipal(ADMIN_ID.toString(), "admin@test.com", Set.of("ADMIN"));
+        return new LiveClassPrincipal(
+                ADMIN_ID.toString(),
+                "admin@test.com",
+                Set.of("ADMIN")
+        );
     }
 
     private LiveClassPrincipal otherTeacherPrincipal() {
-        return new LiveClassPrincipal(OTHER_TEACHER_ID.toString(), "other-teacher@test.com", Set.of("TEACHER"));
+        return new LiveClassPrincipal(
+                OTHER_TEACHER_ID.toString(),
+                "other-teacher@test.com",
+                Set.of("TEACHER")
+        );
     }
 
     private void studentIsAssigned() {
-        when(assignmentRepository.existsByLiveClassIdAndStudentId(CLASS_ID, STUDENT_ID))
-                .thenReturn(true);
-        when(enrollmentClient.enrolledCourseIds(anyString())).thenReturn(Set.of());
-        when(request.getHeader("Authorization")).thenReturn("Bearer test-token");
+        when(assignmentRepository.existsByLiveClassIdAndStudentId(
+                CLASS_ID, STUDENT_ID
+        )).thenReturn(true);
+
+        when(enrollmentClient.enrolledCourseIds(anyString()))
+                .thenReturn(Set.of());
+
+        when(request.getHeader("Authorization"))
+                .thenReturn("Bearer test-token");
     }
 
     @Test
     void studentCanJoinScheduledClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
+
         studentIsAssigned();
 
         LiveClassService service = createService();
-        JoinLiveClassResponse response = service.joinClass(CLASS_ID, studentPrincipal());
+
+        JoinLiveClassResponse response =
+                service.joinClass(CLASS_ID, studentPrincipal());
 
         assertThat(response).isNotNull();
         assertThat(response.roomName()).isEqualTo("test-room");
@@ -132,24 +172,39 @@ class LiveClassServiceJoinTest {
 
     @Test
     void studentCannotJoinUnassignedClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
-        when(assignmentRepository.existsByLiveClassIdAndStudentId(CLASS_ID, STUDENT_ID))
-                .thenReturn(false);
-        when(enrollmentClient.enrolledCourseIds(anyString())).thenReturn(Set.of());
-        when(request.getHeader("Authorization")).thenReturn("Bearer test-token");
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
+
+        when(assignmentRepository.existsByLiveClassIdAndStudentId(
+                CLASS_ID, STUDENT_ID
+        )).thenReturn(false);
+
+        when(enrollmentClient.enrolledCourseIds(anyString()))
+                .thenReturn(Set.of());
+
+        when(request.getHeader("Authorization"))
+                .thenReturn("Bearer test-token");
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, studentPrincipal()))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, studentPrincipal())
+        )
+                .isInstanceOf(
+                        org.springframework.security.access.AccessDeniedException.class
+                )
                 .hasMessage("The student is not assigned to this live class");
     }
 
     @Test
     void teacherCanJoinOwnClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
 
         LiveClassService service = createService();
-        JoinLiveClassResponse response = service.joinClass(CLASS_ID, teacherPrincipal());
+
+        JoinLiveClassResponse response =
+                service.joinClass(CLASS_ID, teacherPrincipal());
 
         assertThat(response).isNotNull();
         assertThat(response.participantRole()).isEqualTo("TEACHER");
@@ -157,10 +212,13 @@ class LiveClassServiceJoinTest {
 
     @Test
     void adminCanJoinAnyClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(scheduledClass(TEACHER_ID)));
 
         LiveClassService service = createService();
-        JoinLiveClassResponse response = service.joinClass(CLASS_ID, adminPrincipal());
+
+        JoinLiveClassResponse response =
+                service.joinClass(CLASS_ID, adminPrincipal());
 
         assertThat(response).isNotNull();
         assertThat(response.participantRole()).isEqualTo("ADMIN");
@@ -168,54 +226,87 @@ class LiveClassServiceJoinTest {
 
     @Test
     void teacherCannotJoinAnotherTeachersClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(scheduledClass(OTHER_TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(scheduledClass(OTHER_TEACHER_ID)));
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, teacherPrincipal()))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, teacherPrincipal())
+        )
+                .isInstanceOf(
+                        org.springframework.security.access.AccessDeniedException.class
+                )
                 .hasMessage("Teachers can join only their own live classes");
     }
 
     @Test
     void studentCannotJoinCancelledClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(cancelledClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(cancelledClass(TEACHER_ID)));
+
         studentIsAssigned();
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, studentPrincipal()))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, studentPrincipal())
+        )
+                .isInstanceOf(
+                        org.springframework.security.access.AccessDeniedException.class
+                )
                 .hasMessage("This live class has been cancelled");
     }
 
     @Test
     void studentCannotJoinPastClass() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(pastClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(pastClass(TEACHER_ID)));
+
         studentIsAssigned();
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, studentPrincipal()))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, studentPrincipal())
+        )
+                .isInstanceOf(
+                        org.springframework.security.access.AccessDeniedException.class
+                )
                 .hasMessage("The live class has already ended");
     }
 
     @Test
     void studentCannotJoinFutureClassBeforeJoinWindow() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.of(futureClass(TEACHER_ID)));
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.of(futureClass(TEACHER_ID)));
+
         studentIsAssigned();
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, studentPrincipal()))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, studentPrincipal())
+        )
+                .isInstanceOf(
+                        org.springframework.security.access.AccessDeniedException.class
+                )
                 .hasMessage("The live class join window has not opened yet");
     }
 
     @Test
     void classNotFoundThrowsException() {
-        when(repository.findById(CLASS_ID)).thenReturn(Optional.empty());
+        when(repository.findById(CLASS_ID))
+                .thenReturn(Optional.empty());
 
         LiveClassService service = createService();
-        assertThatThrownBy(() -> service.joinClass(CLASS_ID, studentPrincipal()))
-                .isInstanceOf(com.olympiad.liveclass.exception.ResourceNotFoundException.class)
+
+        assertThatThrownBy(() ->
+                service.joinClass(CLASS_ID, studentPrincipal())
+        )
+                .isInstanceOf(
+                        com.olympiad.liveclass.exception.ResourceNotFoundException.class
+                )
                 .hasMessageContaining("Live class not found");
     }
 }

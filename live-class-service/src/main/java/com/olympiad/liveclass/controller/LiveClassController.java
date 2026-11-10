@@ -13,6 +13,7 @@ import com.olympiad.liveclass.service.LiveKitService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -99,16 +100,18 @@ public class LiveClassController {
     @PostMapping("/{id}/token")
     public LiveKitTokenResponse getLiveKitToken(
             @PathVariable UUID id,
-            @AuthenticationPrincipal LiveClassPrincipal principal) {
-        return liveKitService.generateToken(id, principal);
+            @AuthenticationPrincipal LiveClassPrincipal principal,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        return liveKitService.generateToken(id, principal, authorization);
     }
 
     @PreAuthorize("hasAuthority('LIVE_CLASS_JOIN')")
     @GetMapping("/{id}/token")
     public LiveKitTokenResponse getLiveKitTokenGet(
             @PathVariable UUID id,
-            @AuthenticationPrincipal LiveClassPrincipal principal) {
-        return liveKitService.generateToken(id, principal);
+            @AuthenticationPrincipal LiveClassPrincipal principal,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        return liveKitService.generateToken(id, principal, authorization);
     }
 
     /* ---------- Raised hands ---------- */

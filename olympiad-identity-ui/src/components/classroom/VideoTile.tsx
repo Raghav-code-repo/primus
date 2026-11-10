@@ -5,7 +5,7 @@ import {
   useParticipantTracks,
 } from '@livekit/components-react'
 import { Track } from 'livekit-client'
-import { Mic, MicOff, Smartphone } from 'lucide-react'
+import { Mic, MicOff, Smartphone, Pin, PinOff } from 'lucide-react'
 import { ParticipantTile, VideoTrack } from '@livekit/components-react'
 import { useAuth } from '../../auth/useAuth'
 import { resolveDisplayName, resolveParticipantDisplayName } from '../../utils/displayName'
@@ -13,11 +13,19 @@ import { resolveDisplayName, resolveParticipantDisplayName } from '../../utils/d
 interface VideoTileProps {
   isFocused?: boolean
   speakerIdentities: Set<string>
+  pinned?: boolean
+  pinnedIdentities?: Set<string>
+  onPinToggle?: (identity: string) => void
+  contain?: boolean
 }
 
 export function VideoTile({
   isFocused = false,
   speakerIdentities,
+  pinned = false,
+  pinnedIdentities,
+  onPinToggle,
+  contain = false,
 }: VideoTileProps) {
   const { user } = useAuth()
   const { identity: infoIdentity, name } = useParticipantInfo()
@@ -34,6 +42,7 @@ export function VideoTile({
   const isScreenSharing = screenTrackRef != null
   const trackRef = isScreenSharing ? screenTrackRef : cameraTrackRef
   const micEnabled = micTracks.length > 0
+  const isPinned = pinned || (pinnedIdentities?.has(infoIdentity ?? '') ?? false)
 
   const loggedTrackRefs = useRef<Set<string>>(new Set())
   const mediaRef = useRef<HTMLDivElement>(null)
@@ -115,6 +124,7 @@ export function VideoTile({
         'video-tile',
         isFocused ? 'video-tile--focused' : '',
         speakerIdentities.has(infoIdentity ?? '') ? 'video-tile--speaking' : '',
+        isPinned ? 'video-tile--pinned' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -123,12 +133,23 @@ export function VideoTile({
       {isScreenSharing && (
         <span className="video-tile__badge" aria-hidden="true">Screen sharing</span>
       )}
-      {        speakerIdentities.has(infoIdentity ?? '') && (
+      {isPinned && (
+        <span className="video-tile__badge" aria-label="Pinned participant">Pinned</span>
+      )}
+      {speakerIdentities.has(infoIdentity ?? '') && (
         <span className="video-tile__badge" aria-label="Active speaker">
           Active speaker
         </span>
       )}
-      <div className="video-tile__media" ref={mediaRef}>
+      <div
+        className={[
+          'video-tile__media',
+          contain ? 'video-tile__media--contain' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        ref={mediaRef}
+      >
         {trackRef ? (
           <ParticipantTile trackRef={trackRef}>
             <VideoTrack
@@ -149,6 +170,17 @@ export function VideoTile({
         >
           {micEnabled ? <Mic size={14} /> : <MicOff size={14} />}
         </span>
+        {onPinToggle && infoIdentity && (
+          <button
+            type="button"
+            className="video-tile__pin"
+            aria-label={isPinned ? 'Unpin participant' : 'Pin participant'}
+            onClick={() => onPinToggle(infoIdentity)}
+            aria-pressed={isPinned}
+          >
+            {pinned ? <PinOff size={16} /> : <Pin size={16} />}
+          </button>
+        )}
       </div>
       <span className="video-tile__name">{displayName}</span>
     </section>

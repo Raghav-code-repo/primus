@@ -11,7 +11,7 @@
         <mapEntry key="IDENTITY_SERVICE_URL" value="http://localhost:8080"/>
         <mapEntry key="JWT_SECRET" value="QeJM7uBC456/pymydXNsjcni2ghq40MiRjw8fnZOQfA="/>
     </mapAttribute>
-    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794155867082"/>
+    <stringAttribute key="org.eclipse.debug.core.terminate.timestamp" value="1794241168083"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>

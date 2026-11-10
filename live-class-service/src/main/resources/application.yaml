@@ -38,6 +38,7 @@ security:
 livekit:
   url: ${LIVEKIT_URL:ws://localhost:7880}
   ws-url: ${LIVEKIT_WS_URL:ws://localhost:7880}
+  #api-key: ${LIVEKIT_API_KEY:devkey}
   api-key: ${LIVEKIT_API_KEY:devkey}
   api-secret: ${LIVEKIT_API_SECRET:secretkeysecretkeysecretkey12}
   token-ttl-millis: 1800000

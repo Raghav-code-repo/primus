@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestClient;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -21,7 +22,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,12 +47,17 @@ class LiveKitGrantVerificationTest {
     private LiveClassService liveClassService;
 
     private LiveKitService createService() {
+        RestClient.Builder builder = mock(RestClient.Builder.class);
+        when(builder.baseUrl(anyString())).thenReturn(builder);
+        when(builder.build()).thenReturn(mock(RestClient.class));
         return new LiveKitService(
                 repository,
                 liveClassService,
                 "test-api-key",
                 "test-api-secret-key-for-testing-123456",
-                "ws://localhost:7880"
+                "ws://localhost:7880",
+                builder,
+                "http://localhost:8080"
         );
     }
 
@@ -89,7 +97,7 @@ class LiveKitGrantVerificationTest {
         LiveKitService service = createService();
         LiveKitTokenResponse response = service.generateToken(
                 CLASS_ID,
-                new LiveClassPrincipal(STUDENT_ID.toString(), "student@test.com", Set.of("STUDENT"))
+                new LiveClassPrincipal(STUDENT_ID.toString(), "student@test.com", Set.of("STUDENT")), null
         );
 
         Map<String, Object> grants = videoGrants(response.token());
@@ -116,7 +124,7 @@ class LiveKitGrantVerificationTest {
         LiveKitService service = createService();
         LiveKitTokenResponse response = service.generateToken(
                 CLASS_ID,
-                new LiveClassPrincipal(TEACHER_ID.toString(), "teacher@test.com", Set.of("TEACHER"))
+                new LiveClassPrincipal(TEACHER_ID.toString(), "teacher@test.com", Set.of("TEACHER")), null
         );
 
         Map<String, Object> grants = videoGrants(response.token());
@@ -139,7 +147,7 @@ class LiveKitGrantVerificationTest {
         LiveKitService service = createService();
         LiveKitTokenResponse response = service.generateToken(
                 CLASS_ID,
-                new LiveClassPrincipal(STUDENT_ID.toString(), "student@test.com", Set.of("STUDENT"))
+                new LiveClassPrincipal(STUDENT_ID.toString(), "student@test.com", Set.of("STUDENT")), null
         );
 
         Map<String, Object> grants = videoGrants(response.token());

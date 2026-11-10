@@ -1,5 +1,5 @@
 import { useLocalParticipant } from '@livekit/components-react'
-import { useCallback, useMemo, type ReactElement } from 'react'
+import { useCallback, useEffect, useMemo, type ReactElement, type RefObject, useState } from 'react'
 import {
   Mic,
   MicOff,
@@ -13,6 +13,8 @@ import {
   List,
   PlayCircle,
   Settings,
+  Maximize,
+  Minimize,
 } from 'lucide-react'
 import { Button, IconButton } from '../ui/button'
 import { Tooltip } from '../ui/tooltip'
@@ -43,6 +45,7 @@ export interface BottomToolbarProps {
   onMediaError?: (message: string) => void
   mediaError?: string | null
   onClearMediaError?: () => void
+  containerRef?: RefObject<HTMLDivElement | null>
 }
 
 export function BottomToolbar({
@@ -72,6 +75,28 @@ export function BottomToolbar({
   onClearMediaError,
 }: BottomToolbarProps) {
   const { localParticipant } = useLocalParticipant()
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  const toggleFullscreen = useCallback(() => {
+    const el = document.documentElement
+    if (!document.fullscreenElement) {
+      void el
+        .requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(() => setIsFullscreen(false))
+    } else {
+      void document
+        .exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(() => setIsFullscreen(false))
+    }
+  }, [])
 
   const handleMuteAll = useCallback(async () => {
     if (!onMuteAll) return
@@ -148,6 +173,13 @@ export function BottomToolbar({
         icon: <List size={18} />,
         label: 'Questions',
       },
+      {
+        key: 'fullscreen',
+        active: isFullscreen,
+        onClick: toggleFullscreen,
+        icon: isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />,
+        label: isFullscreen ? 'Exit full screen' : 'Full screen',
+      },
     ]
 
     if (isTeacher) {
@@ -207,6 +239,8 @@ export function BottomToolbar({
     onLaunchQuestion,
     onOpenSettings,
     onLeave,
+    isFullscreen,
+    toggleFullscreen,
   ])
 
   return (

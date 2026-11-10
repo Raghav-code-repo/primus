@@ -1,5 +1,6 @@
 package com.olympiad.liveclass.service;
 
+import com.olympiad.liveclass.dto.IdentityProfileResponse;
 import com.olympiad.liveclass.dto.LiveKitTokenResponse;
 import com.olympiad.liveclass.entity.LiveClass;
 import com.olympiad.liveclass.enums.LiveClassStatus;
@@ -16,12 +17,15 @@ import io.livekit.server.RoomName;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.time.Instant;
 import java.util.Date;
@@ -41,23 +45,33 @@ public class LiveKitService {
     private final String apiKey;
     private final String apiSecret;
     private final String livekitUrl;
+    private final RestClient identityClient;
 
     public LiveKitService(
             LiveClassRepository repository,
             LiveClassService liveClassService,
             @Value("${livekit.api-key}") String apiKey,
             @Value("${livekit.api-secret}") String apiSecret,
-            @Value("${livekit.url:ws://localhost:7880}") String livekitUrl
+            @Value("${livekit.url:ws://localhost:7880}") String livekitUrl,
+            RestClient.Builder restClientBuilder,
+            @Value("${identity-service.base-url:http://localhost:8080}") String identityBaseUrl
     ) {
         this.repository = repository;
         this.liveClassService = liveClassService;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
         this.livekitUrl = livekitUrl;
+        this.identityClient = restClientBuilder
+                .baseUrl(identityBaseUrl)
+                .build();
     }
 
     @Transactional(readOnly = true)
-    public LiveKitTokenResponse generateToken(UUID classId, LiveClassPrincipal principal) {
+    public LiveKitTokenResponse generateToken(
+            UUID classId,
+            LiveClassPrincipal principal,
+            String authorization
+    ) {
         if (principal == null || principal.userId() == null || principal.email() == null) {
             log.warn(
                     "Token request rejected: missing authenticated principal userId={} email={}",
@@ -193,8 +207,16 @@ public class LiveKitService {
 
         Instant expiresAt = now.plusSeconds(3600);
 
+        /* ====================================================================
+         * Verified display name from Identity Service profile.
+         * Never trust a name supplied by the browser; the name below is fetched
+         * server-side using the bearer token the client already holds.
+         * ==================================================================== */
+        String displayName = resolveDisplayName(authorization, principal);
+
         AccessToken accessToken = new AccessToken(apiKey, apiSecret);
         accessToken.setIdentity(principal.userId());
+        accessToken.setName(displayName);
         accessToken.setExpiration(Date.from(expiresAt));
 
         if ("TEACHER".equals(participantRole) || "ADMIN".equals(participantRole)) {
@@ -229,8 +251,51 @@ public class LiveKitService {
                 liveClass.getRoomName(),
                 principal.userId(),
                 participantRole,
-                expiresAt
+                expiresAt,
+                displayName
         );
+    }
+
+    /**
+     * Resolves the verified display name for the authenticated principal.
+     *
+     * <p>The profile is retrieved from Identity Service {@code GET /api/auth/me}
+     * using the bearer token the client already holds. Name order:
+     * trimmed {@code firstName + lastName} -> email prefix. If the profile
+     * cannot be reached, falls back to the email prefix so the UI never shows
+     * a raw UUID and never leaks credentials.
+     */
+    private String resolveDisplayName(String authorization, LiveClassPrincipal principal) {
+        if (authorization != null && !authorization.isBlank()) {
+            try {
+                IdentityProfileResponse profile = identityClient.get()
+                        .uri("/api/auth/me")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .retrieve()
+                        .body(IdentityProfileResponse.class);
+                if (profile != null) {
+                    String name = profile.buildDisplayName();
+                    if (name != null && !name.isBlank()) {
+                        return name;
+                    }
+                }
+            } catch (RestClientException ex) {
+                // Profile lookup temporarily unavailable: fall back gracefully.
+                log.debug("Identity profile lookup unavailable for userId={}",
+                        principal.userId());
+            }
+        }
+
+        // Safe fallback from verified email only.
+        String email = principal.email();
+        if (email != null && !email.isBlank()) {
+            int at = email.indexOf('@');
+            String prefix = (at > 0 ? email.substring(0, at) : email).trim();
+            if (!prefix.isBlank()) {
+                return prefix;
+            }
+        }
+        return "Participant";
     }
 
     private Set<String> currentAuthorities() {
